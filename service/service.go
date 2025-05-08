@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"strings"
 )
 
 // Service структура, реализующая бизнес-логику
@@ -16,8 +15,34 @@ func NewService(prod Producer, pres Presenter) *Service {
 	return &Service{prod: prod, pres: pres}
 }
 
+// функция ищет подстроку "http://" и заменяет все символы после неё до первого пробела на звездочки.
+func maskLinks(input string) string {
+	text := []byte(input)
+	poisk := []byte("http://")
+
+	for i := 0; i <= len(text)-len(poisk); i++ {
+		match := true
+		for j := 0; j < len(poisk); j++ {
+			if text[i+j] != poisk[j] {
+				match = false
+				break
+			}
+		}
+
+		if match {
+			i += len(poisk)
+			for i < len(text) && text[i] != ' ' {
+				text[i] = '*'
+				i++
+			}
+		}
+	}
+
+	return string(text)
+}
+
 func (s *Service) MaskString(input string) string {
-	return strings.ReplaceAll(input, "secret", "******")
+	return maskLinks(input)
 }
 
 // Run основной метод сервиса
